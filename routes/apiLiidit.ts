@@ -99,21 +99,27 @@ apiLiidiRouter.post("/", async(req: express.Request, res: express.Response, next
 
 //Haetaan käyttäjä ID:n perusteella tietokannasta
 apiLiidiRouter.get("/:id", async(req: express.Request, res: express.Response, next: express.NextFunction) => {
-    if(await prisma.liidit.count({
-        where: {
-            id: Number(req.params.id)
+    try{
+        if(await prisma.liidit.count({
+            where: {
+                id: Number(req.params.id)
+            }
+        })===1){
+            try{
+                res.status(200).json(await prisma.liidit.findUnique({where:{id: Number(req.params.id)}}));
+                res.json(await prisma.liidit.findUnique({where:{id: Number(req.params.id)}}));
+            }
+            catch(e:any){
+                next(new Virhe());
+            }
+        }else{
+            next(new Virhe(404, "Not Found"));
         }
-    })===1){
-        try{
-            res.status(200).json(await prisma.liidit.findUnique({where:{id: Number(req.params.id)}}));
-            res.json(await prisma.liidit.findUnique({where:{id: Number(req.params.id)}}));
-        }
-        catch(e:any){
-            next(new Virhe());
-        }
-    }else{
-        next(new Virhe(404, "Not Found"));
     }
+    catch(e:any){
+        next(new Virhe());
+    }
+    
 });
 
 //Haetaan kaikki käyttäjät
