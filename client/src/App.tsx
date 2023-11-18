@@ -24,11 +24,14 @@ const App : React.FC = () : React.ReactElement => {
   });
 
 
+  //Kutsutaan palvelimelta tietoa käyttäjien osalta
   const apiKutsu = async (metodi? : string, kayttaja? : Kayttaja) : Promise<void> => {
+    //Default asetukset fetch -pyynnön metodille
     let asetukset : any = {
       method : metodi || "GET"
     };
 
+    //POST pyynnön käsittely
     if(metodi === "POST"){
       asetukset = {
         ...asetukset,
@@ -39,15 +42,33 @@ const App : React.FC = () : React.ReactElement => {
       }
     }
 
+    //GET pyyntö palvelimelle aina apiKutsu -funktion viimeisenä pyyntönä. Tämä pitää palvelimelta saadut tiedot aina ajantasalla.
     try{
       
       const kayttajaYhteys = await fetch('http://localhost:3004/api/kayttajat', asetukset);
 
-      setApidata({
-        ...apiData,
-        kayttajat: await kayttajaYhteys.json(),
-        haettu : true
-      })
+      if (kayttajaYhteys.status === 200){
+        setApidata({
+          ...apiData,
+          kayttajat: await kayttajaYhteys.json(),
+          haettu : true
+        })
+      }else{
+
+        let virheteksti : string = "";
+
+        //Virhe ilmoituksien hallinta palvelimen palauttaman statuksen perusteella
+        switch( kayttajaYhteys.status){
+          case 400 : virheteksti = "400: Virhe pyynnön tiedoissa"; break;
+          default : virheteksti = "Palvelimella tapahtui odottamaton virhe"; break;
+        }
+
+        setApidata({
+          ...apiData,
+          virhe: virheteksti,
+          haettu: true
+        })
+      }
 
     }
     catch(e:any){
