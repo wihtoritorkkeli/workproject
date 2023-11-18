@@ -41,7 +41,7 @@ apiKayttajaRouter.put("/:id", async(req: express.Request, res: express.Response,
         })===1){
             if((req.body.kayttajatunnus.length > 0 && req.body.kayttajatunnus !== undefined)&&
             (req.body.salasana.length > 0 && req.body.salasana !== undefined)){
-                if((req.body.admin.length > 0 && req.body.admin !== undefined)){
+                if((req.body.admin !== undefined)){
                     try{
                         await prisma.kayttaja.update({
                             where: {
@@ -53,9 +53,10 @@ apiKayttajaRouter.put("/:id", async(req: express.Request, res: express.Response,
                                 admin: req.body.admin
                             }
                         })
+                        res.status(200).json(await prisma.kayttaja.findUnique({where:{id:Number(req.params.id)}}));
                     }
                     catch(e:any){
-                        next(new Virhe());
+                        next(new Virhe(400, "Virhe"));
                     }
                 }
                 else{
@@ -66,7 +67,8 @@ apiKayttajaRouter.put("/:id", async(req: express.Request, res: express.Response,
                             },
                             data : {
                                 kayttajatunnus : req.body.kayttajatunnus,
-                                salasana : req.body.salasana
+                                salasana : req.body.salasana,
+                                admin : false
                             }
                         });
                         res.status(200).json(await prisma.kayttaja.findUnique({where:{id: Number(req.params.id)}}));
@@ -96,17 +98,33 @@ apiKayttajaRouter.post("/", async(req: express.Request, res: express.Response, n
         if((req.body.kayttajatunnus.length > 0 && req.body.kayttajatunnus !== undefined)&&
         (req.body.salasana.length > 0 && req.body.salasana !== undefined)
         ){
-            try{
-                await prisma.kayttaja.create({
-                    data: {
-                        kayttajatunnus : req.body.kayttajatunnus,
-                        salasana : req.body.salasana
-                    }
-                });
-                res.status(200).json(await prisma.kayttaja.findMany({orderBy:{id: "desc"}, take: 1}));
-            }
-            catch(e:any){
-                next(new Virhe());
+            if((req.body.admin !== undefined)){
+                try{
+                    await prisma.kayttaja.create({
+                        data: {
+                            kayttajatunnus : req.body.kayttajatunnus,
+                            salasana : req.body.salasana,
+                            admin : req.body.admin
+                        }
+                    });
+                    res.status(200).json(await prisma.kayttaja.findMany({orderBy:{id: "desc"}, take: 1}));
+                }
+                catch(e:any){
+                    next(new Virhe());
+                }
+            }else{
+                try{
+                    await prisma.kayttaja.create({
+                        data: {
+                            kayttajatunnus : req.body.kayttajatunnus,
+                            salasana : req.body.salasana
+                        }
+                    });
+                    res.status(200).json(await prisma.kayttaja.findMany({orderBy:{id: "desc"}, take: 1}));
+                }
+                catch(e:any){
+                    next(new Virhe());
+                }
             }
         }
     }
