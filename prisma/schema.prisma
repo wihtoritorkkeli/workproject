@@ -19,6 +19,6 @@ model Kayttaja {
 
 model Liidit {
   id             Int    @id @default(autoincrement())
-  kayttajatunnut String
+  kayttajatunnus String
   liidi          String
 }

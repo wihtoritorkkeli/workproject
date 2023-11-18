@@ -9,6 +9,6 @@ CREATE TABLE "Kayttaja" (
 -- CreateTable
 CREATE TABLE "Liidit" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "kayttajatunnut" TEXT NOT NULL,
+    "kayttajatunnus" TEXT NOT NULL,
     "liidi" TEXT NOT NULL
 );
