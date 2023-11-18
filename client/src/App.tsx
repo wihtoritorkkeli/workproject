@@ -24,10 +24,24 @@ const App : React.FC = () : React.ReactElement => {
   });
 
 
-  const apiKutsu = async () : Promise<void> => {
+  const apiKutsu = async (metodi? : string, kayttaja? : Kayttaja) : Promise<void> => {
+    let asetukset : any = {
+      method : metodi || "GET"
+    };
+
+    if(metodi === "POST"){
+      asetukset = {
+        ...asetukset,
+        headers : {
+          'Content-Type': 'application/json'
+        },
+        body : JSON.stringify(kayttaja)
+      }
+    }
+
     try{
       
-      const kayttajaYhteys = await fetch('http://localhost:3004/api/kayttajat');
+      const kayttajaYhteys = await fetch('http://localhost:3004/api/kayttajat', asetukset);
 
       setApidata({
         ...apiData,
@@ -40,7 +54,8 @@ const App : React.FC = () : React.ReactElement => {
 
       setApidata({
         ...apiData,
-        virhe : "palvelimeen ei saada yhteyttä"
+        virhe : "palvelimeen ei saada yhteyttä",
+        haettu : true
       })
 
     }
